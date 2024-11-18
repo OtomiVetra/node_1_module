@@ -5,19 +5,13 @@ const chalk = require('chalk');
 const notesPath = path.join(__dirname, 'db.json');
 
 async function addNote(title) {
-  // const notes = require('./db.json');
-
-  //const notes = Buffer.from(buffer).toString('utf-8');
-
   const notes = await getNotes();
-
   const note = {
     title,
     id: Date.now().toString(),
   };
   notes.push(note);
   await saveNotes(notes);
-
   console.log(chalk.bgGreen('Note was added!'));
 }
 
@@ -25,7 +19,6 @@ async function getNotes() {
   const notes = await fs.readFile(notesPath, {
     encoding: 'utf-8',
   });
-
   return Array.isArray(JSON.parse(notes))
     ? JSON.parse(notes)
     : [];
@@ -55,8 +48,25 @@ async function removeNote(id) {
   );
 }
 
+async function updateNote(noteData) {
+  const notes = await getNotes();
+  const index = notes.findIndex(
+    (note) => note.id === noteData.id
+  );
+  if (index >= 0) {
+    notes[index] = { ...notes[index], ...noteData };
+    await saveNotes(notes);
+    console.log(
+      chalk.bgGreen(
+        `Note with id="${noteData.id}" has been updated!`
+      )
+    );
+  }
+}
+
 module.exports = {
   addNote,
-  printNotes,
+  getNotes,
   removeNote,
+  updateNote,
 };
